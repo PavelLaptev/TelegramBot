@@ -15,6 +15,7 @@ Get chatID by sending from user or group to your bot /start command → in brows
 
 wuala!
 
+If you need to send a message to more than one chat, simply separate them with commas.
 
 # Usage
 Run plugin by cmd+ctrl+T or from menu and fun!
