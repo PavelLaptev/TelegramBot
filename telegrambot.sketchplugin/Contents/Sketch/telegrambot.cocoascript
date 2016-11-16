@@ -1,0 +1,123 @@
+var onRun = function(context) {
+	// glodal variables
+	var doc = context.document
+	var emojiArr = [' 📬', '💥', '🤘', '💩', '📢', '🎯', '🍓', '😎', '🙈', '💌', '📦', '🍾'];
+	var randomNumber = emojiArr[Math.floor(Math.random() * emojiArr.length)];
+
+	var flag = ( flag === false ) ? NSOffState : NSOnState;
+
+	// inputs values function
+	function sendToTelegram(bottoken, item, title, message) {
+		title = title || ""
+		message = message || ""
+		var request = NSURLRequest.requestWithURL(NSURL.URLWithString('http://api.telegram.org/bot' + bottoken + '/sendmessage?chat_id=' + item + '&parse_mode=markdown&text=*' + title + '*%0A' + message + ''));
+		var response = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
+	}
+	function sendToTelegramDocument(bottoken, item, linkURL) {
+		linkURL = linkURL || ""
+		var request = NSURLRequest.requestWithURL(NSURL.URLWithString('https://api.telegram.org/bot' + bottoken + '/sendDocument?chat_id=' + item + '&document=' + linkURL +''));
+		var response = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
+	}
+
+	// create alert window
+	var messageWindow = COSAlertWindow.new();
+
+	//set icon
+	var plugin = context.plugin
+	var iconPath = plugin.urlForResourceNamed("icon.png").path();
+	var icon = NSImage.alloc().initByReferencingFile(iconPath);
+	messageWindow.setIcon(icon);
+
+	//read from JSON
+	var readTextFromFile = function(filePath) {
+		var fileManager = [NSFileManager defaultManager];
+		if ([fileManager fileExistsAtPath:filePath]) {
+			return [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+			}
+		return nil;
+	};
+	var pathToJSON = plugin.urlForResourceNamed("botinfo.json");
+	var pluginPath = pathToJSON.path();
+	var readJSONFile = readTextFromFile(pathToJSON.path());
+	var JSONparseFile = JSON.parse(readJSONFile);
+	
+
+	// write to JSON
+	var writeTextToFile = function(text, filePath) {
+	    var t = [NSString stringWithFormat:@"%@", text],
+	    f = [NSString stringWithFormat:@"%@", filePath];
+	    return [t writeToFile:f atomically:true encoding:NSUTF8StringEncoding error:nil];
+	}
+
+	// set window title
+	messageWindow.setMessageText("Send to Telegram");
+	messageWindow.setInformativeText("Write bot info and your message");
+
+	// set token and chats id in inputs
+	messageWindow.addTextLabelWithValue("your bot token");
+	messageWindow.addTextFieldWithValue(JSONparseFile.bottoken);
+	messageWindow.addTextLabelWithValue("chats Id");
+	messageWindow.addTextFieldWithValue(JSONparseFile.chatsid);
+
+	// set rememder chechbox
+	var checkboxSaveValue = NSButton.alloc().initWithFrame(NSMakeRect( 0, 0, 300, 18 ));
+	checkboxSaveValue.setButtonType( NSSwitchButton );
+	checkboxSaveValue.setTitle( 'Remember token and chats id' );
+	checkboxSaveValue.setState( true );
+	messageWindow.addAccessoryView( checkboxSaveValue );
+
+	// hack divider
+	messageWindow.addTextLabelWithValue("⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅");
+
+	// and set title, message and document link inputs
+	messageWindow.addTextLabelWithValue("message title");
+	messageWindow.addTextFieldWithValue("");
+
+	messageWindow.addTextLabelWithValue("message text");
+	messageWindow.addTextFieldWithValue("");
+
+	messageWindow.addTextLabelWithValue("document link");
+	messageWindow.addTextFieldWithValue("");
+
+	messageWindow.addButtonWithTitle('Send!');
+	messageWindow.addButtonWithTitle('Not today');
+
+	// run window
+	var responseCode = messageWindow.runModal();
+
+	// get bottoken from input
+	var botToken = messageWindow.viewAtIndex(1).stringValue();
+
+	// push to array
+	var chatsId = messageWindow.viewAtIndex(3).stringValue();
+	var chatsIdArr = [];
+	var pushToArr = chatsIdArr.push(chatsId);
+
+	var JSONobj = '{"bottoken":"' + botToken + '","chatsid": "' + chatsId + '"}'
+	var emptyJSONobj = '{"bottoken": "","chatsid": ""}'
+
+	// check action buttons
+	if (responseCode == 1000){
+		if ( checkboxSaveValue.state() == true ) {
+			writeTextToFile(JSONobj, pluginPath);
+		}
+		if ( checkboxSaveValue.state() == false ) {
+			writeTextToFile(emptyJSONobj, pluginPath);
+		}
+		if (messageWindow.viewAtIndex(7).stringValue() != "" || messageWindow.viewAtIndex(9).stringValue() != "" || messageWindow.viewAtIndex(11).stringValue() != "") {
+			titleEsc = encodeURIComponent(randomNumber + messageWindow.viewAtIndex(7).stringValue());
+			messageEsc = encodeURIComponent(messageWindow.viewAtIndex(9).stringValue());
+			linkURL = encodeURIComponent(messageWindow.viewAtIndex(11).stringValue());
+			chatsIdArr.forEach(function(item, i, arr) {
+				sendToTelegram(botToken, item, titleEsc, messageEsc);
+				sendToTelegramDocument(botToken, item, linkURL);
+			});
+			log(pluginPath);
+			doc.showMessage("💌 Sended!");
+		} else if (messageWindow.viewAtIndex(7).stringValue() == "" || messageWindow.viewAtIndex(9).stringValue() == "" || messageWindow.viewAtIndex(11).stringValue() == "") {
+			doc.showMessage("⚠️ Ops! Please write something)");
+		}
+	} else if (responseCode == 1001){
+		doc.showMessage("Not today? 🤗 oookay");
+	}
+}
