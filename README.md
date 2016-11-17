@@ -17,10 +17,12 @@ wuala!
 
 If you need to send a message to more than one chat, simply separate them with commas.
 
+![Preview](https://raw.githubusercontent.com/PavelLaptev/TelegramBot/master/imgs/botscreen.png)
+
 # Usage
 Run plugin by cmd+ctrl+T or from menu and fun!
 
-![Gif preview](https://drive.google.com/uc?export=download&id=0BzR0AbzivV0DVHB5UUZqZ1JmeG8)
+![Gif preview](https://raw.githubusercontent.com/PavelLaptev/TelegramBot/master/imgs/action-gif.gif)
 
 
 ### Thank you
