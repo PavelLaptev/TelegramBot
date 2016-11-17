@@ -1,4 +1,4 @@
-[![GitHub release](https://img.shields.io/badge/release-1.0-green.svg?maxAge=2592000)
+[![GitHub release](https://img.shields.io/badge/release-1.0-green.svg?maxAge=2592000)]
 
 ![Cover](https://drive.google.com/uc?export=download&id=0BzR0AbzivV0DVjRaRlFnSC1QaEk)
 
