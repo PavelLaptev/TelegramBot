@@ -15,7 +15,6 @@
       "Telegram-bot"
     ]
   },
-  "identifier" : "Telegram-bot",
   "version" : "1.0",
   "description" : "Sketch plugin for telegram messenger",
   "authorEmail" : "graphics.dario@gmail.com",
